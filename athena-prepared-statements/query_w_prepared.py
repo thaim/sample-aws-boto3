@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import os
+import sys
 import time
 
 import boto3
@@ -11,10 +12,8 @@ s3 = boto3.resource('s3')
 
 resp = athena.start_query_execution(
     QueryString = """
-    SELECT *
-    FROM \"cloudtrail_logs\"
-    WHERE region = 'ap-northeast-1' AND timestamp = '2021/06'
-    LIMIT 10;
+    EXECUTE cloudtrail
+    USING 'ap-northeast-1', '2021/*';
     """,
     ResultConfiguration = {
         'OutputLocation': 's3://' + os.environ['AWS_S3_BUCKET_QUERY_RESULTS']
@@ -29,7 +28,6 @@ while resp['QueryExecution']['Status']['State'] in ['RUNNING', 'QUEUED']:
 if resp['QueryExecution']['Status']['State'] in ['FAILED', 'CANCELLED']:
     print(resp)
     sys.exit(1)
-
 
 result_key = execution_id + '.csv'
 s3.meta.client.download_file(os.environ['AWS_S3_BUCKET_QUERY_RESULTS'], result_key, 'result.csv')
