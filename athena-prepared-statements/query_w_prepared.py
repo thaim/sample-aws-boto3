@@ -13,7 +13,7 @@ s3 = boto3.resource('s3')
 resp = athena.start_query_execution(
     QueryString = """
     EXECUTE cloudtrail
-    USING 'ap-northeast-1', '2021/*';
+    USING 'ap-northeast-1', '2021/06';
     """,
     ResultConfiguration = {
         'OutputLocation': 's3://' + os.environ['AWS_S3_BUCKET_QUERY_RESULTS']
