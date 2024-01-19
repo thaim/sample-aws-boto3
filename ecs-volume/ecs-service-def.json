@@ -1,0 +1,55 @@
+{
+  "deploymentConfiguration": {
+    "deploymentCircuitBreaker": {
+      "enable": false,
+      "rollback": false
+    },
+    "maximumPercent": 200,
+    "minimumHealthyPercent": 100
+  },
+  "desiredCount": 1,
+  "enableECSManagedTags": false,
+  "healthCheckGracePeriodSeconds": 0,
+  "launchType": "FARGATE",
+  "networkConfiguration": {
+    "awsvpcConfiguration": {
+      "assignPublicIp": "ENABLED",
+      "subnets": [
+        "{{ tfstate `data.aws_subnet.public.id` }}"
+      ]
+    }
+  },
+  "placementConstraints": [],
+  "placementStrategy": [],
+  "platformVersion": "LATEST",
+  "schedulingStrategy": "REPLICA",
+  "serviceRegistries": [],
+  "volumeConfigurations": [
+    {
+      "name": "ecsEBSvolume",
+      "managedEBSVolume": {
+        "encrypted": true,
+        "kmsKeyId": "{{ tfstate `data.aws_kms_alias.ebs.target_key_arn` }}",
+        "volumeType": "gp3",
+        "sizeInGiB": 10,
+        "tagSpecifications": [
+          {
+            "resourceType": "volume",
+            "tags": [
+              {
+                "key": "Name",
+                "value": "ecs-ebs-volume"
+              }
+            ],
+            "propagateTags": "NONE"
+          }
+        ],
+        "roleArn": "{{ tfstate `aws_iam_role.ecs_infrastructure.arn` }}",
+        "terminationPolicy": {
+          "deleteOnTermination": true
+        },
+        "filesystemType": "ext4"
+      }
+    }
+  ]
+}
