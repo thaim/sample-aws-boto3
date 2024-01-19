@@ -1,0 +1,54 @@
+{
+  "family": "sample-ecs-volumes",
+  "containerDefinitions": [
+    {
+      "name": "container-using-ebs",
+      "image": "amazonlinux:2",
+      "essential": true,
+      "entryPoint": [
+        "sh",
+        "-c"
+      ],
+      "command": [
+        "ls -al /mount/ebs && df"
+      ],
+      "readonlyRootFilesystem": true,
+      "mountPoints": [
+        {
+          "containerPath": "/mount/ebs",
+          "readOnly": false,
+          "sourceVolume": "ecsEBSvolume"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-create-group": "true",
+          "awslogs-group": "/ecs/sample-ecs-volumes",
+          "awslogs-region": "ap-northeast-1",
+          "awslogs-stream-prefix": "main"
+        }
+      }
+    }
+  ],
+  "cpu": "256",
+  "memory": "512",
+  "ephemeralStorage": {
+    "sizeInGiB": 50
+  },
+  "executionRoleArn": "{{ tfstate `aws_iam_role.ecs_task.arn` }}",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": [
+    "FARGATE"
+  ],
+  "runtimePlatform": {
+    "cpuArchitecture": "X86_64",
+    "operatingSystemFamily": "LINUX"
+  },
+  "volumes": [
+    {
+      "name": "ecsEBSvolume",
+      "configuredAtLaunch": true
+    }
+  ]
+}
